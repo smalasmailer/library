@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Библиотечная система</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --info: #4895ef;
+            --warning: #f72585;
+            --danger: #e63946;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --sidebar-width: 280px;
+            --header-height: 70px;
+            --border-radius: 12px;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fb;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Стили боковой панели */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 25px 0;
+            height: 100vh;
+            position: fixed;
+            overflow-y: auto;
+            box-shadow: var(--shadow);
+            z-index: 1000;
+        }
+        
+        .sidebar-header {
+            padding: 0 25px 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .sidebar-header img {
+            width: 50px;
+            height: 50px;
+            margin-right: 15px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: white;
+            padding: 5px;
+        }
+        
+        .sidebar-header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+        
+        .sidebar-header p {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .nav-item {
+            padding: 15px 25px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+        }
+        
+        .nav-item i {
+            margin-right: 12px;
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+        
+        .nav-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding-left: 30px;
+        }
+        
+        .nav-item.active {
+            background-color: rgba(255, 255, 255, 0.15);
+            border-left: 4px solid white;
+        }
+        
+        /* Стили основной области */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 30px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .header h2 {
+            color: var(--dark);
+            font-weight: 600;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-info img {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            margin-right: 15px;
+            object-fit: cover;
+            border: 2px solid var(--light-gray);
+        }
+        
+        .dashboard-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+        }
+        
+        .card:nth-child(1)::before { background-color: var(--primary); }
+        .card:nth-child(2)::before { background-color: var(--success); }
+        .card:nth-child(3)::before { background-color: var(--warning); }
+        .card:nth-child(4)::before { background-color: var(--info); }
+        
+        .card h3 {
+            color: var(--gray);
+            margin-bottom: 12px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+        
+        .card p {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 0;
+        }
+        
+        .card i {
+            position: absolute;
+            right: 25px;
+            top: 25px;
+            font-size: 32px;
+            opacity: 0.2;
+        }
+        
+        .section {
+            display: none;
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+        }
+        
+        .section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .section h2 {
+            margin-bottom: 25px;
+            color: var(--dark);
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--light-gray);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+        
+        .section h2 i {
+            margin-right: 12px;
+            color: var(--primary);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: 0 0 0 1px var(--light-gray);
+        }
+        
+        table th, table td {
+            padding: 16px 20px;
+            text-align: left;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: var(--gray);
+            text-transform: uppercase;
+            font-size: 13px;
+            letter-spacing: 1px;
+        }
+        
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn i {
+            margin-right: 8px;
+        }
+        
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 14px;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary);
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c1121f;
+        }
+        
+        .btn-warning {
+            background-color: var(--warning);
+            color: white;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--light-gray);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: var(--transition);
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+        }
+        
+        .recent-activity {
+            list-style-type: none;
+        }
+        
+        .recent-activity li {
+            padding: 15px 0;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            align-items: center;
+        }
+        
+        .recent-activity li:last-child {
+            border-bottom: none;
+        }
+        
+        .recent-activity li i {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 18px;
+        }
+        
+        .activity-add {
+            background-color: rgba(76, 201, 240, 0.15);
+            color: var(--success);
+        }
+        
+        .activity-loan {
+            background-color: rgba(67, 97, 238, 0.15);
+            color: var(--primary);
+        }
+        
+        .activity-return {
+            background-color: rgba(247, 37, 133, 0.15);
+            color: var(--warning);
+        }
+        
+        .timestamp {
+            color: var(--gray);
+            font-size: 13px;
+            margin-top: 4px;
+        }
+        
+        .status-available {
+            color: #2a9d8f;
+            font-weight: bold;
+        }
+        
+        .status-borrowed {
+            color: var(--danger);
+            font-weight: bold;
+        }
+        
+        .badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .badge-success {
+            background-color: rgba(42, 157, 143, 0.15);
+            color: #2a9d8f;
+        }
+        
+        .badge-danger {
+            background-color: rgba(230, 57, 70, 0.15);
+            color: var(--danger);
+        }
+        
+        .badge-warning {
+            background-color: rgba(247, 37, 133, 0.15);
+            color: var(--warning);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 500px;
+            box-shadow: var(--shadow);
+            animation: modalFadeIn 0.3s ease;
+        }
+        
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .modal-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h3 {
+            margin: 0;
+            color: var(--dark);
+        }
+        
+        .modal-body {
+            padding: 25px;
+        }
+        
+        .modal-footer {
+            padding: 20px 25px;
+            border-top: 1px solid var(--light-gray);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        .close {
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--gray);
+        }
+        
+        .library-card {
+            width: 350px;
+            height: 220px;
+            background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+            border-radius: 16px;
+            padding: 25px;
+            color: white;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .library-card::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .library-card::after {
+            content: '';
+            position: absolute;
+            bottom: -60px;
+            left: -60px;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .card-logo {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-holder {
+            margin-bottom: 25px;
+        }
+        
+        .card-holder span {
+            display: block;
+            font-size: 12px;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+        
+        .card-holder div {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .card-number {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-number span {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .card-number div {
+            font-size: 16px;
+            letter-spacing: 2px;
+            font-weight: 600;
+        }
+        
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .library-card, .library-card * {
+                visibility: visible;
+            }
+            .library-card {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Боковая панель -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJmZWF0aGVyIGZlYXRoZXItYm9vayI+PHBhdGggZD0iTTQgMTkuNVY1YTIuNSAyLjUgMCAwIDEgNSAwdjE0LjVhMi41IDIuNSAwIDAgMS01IDBabTUtMHYtMTQuNWMyLjUgMCA1IDAgNSAwdjE0LjVhMi41IDIuNSAwIDAgMS01IDBabTAgMGwxMC01di0xMCIvPjwvc3ZnPg==" alt="Library Logo">
+                <div>
+                    <h1>Библиотека</h1>
+                    <p>Система учета книг</p>
+                </div>
+            </div>
+            <div class="nav-item active" data-section="dashboard">
+                <i class="fas fa-home"></i> Главная
+            </div>
+            <div class="nav-item" data-section="books">
+                <i class="fas fa-book"></i> Книги
+            </div>
+            <div class="nav-item" data-section="readers">
+                <i class="fas fa-users"></i> Читатели
+            </div>
+            <div class="nav-item" data-section="loans">
+                <i class="fas fa-exchange-alt"></i> Выдача книг
+            </div>
+            <div class="nav-item" data-section="add-book">
+                <i class="fas fa-plus-circle"></i> Добавить книгу
+            </div>
+            <div class="nav-item" data-section="add-reader">
+                <i class="fas fa-user-plus"></i> Добавить читателя
+            </div>
+        </div>
+        
+        <!-- Основное содержимое -->
+        <div class="main-content">
+            <div class="header">
+                <h2>Библиотечная система управления</h2>
+                <div class="user-info">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJmZWF0aGVyIGZlYXRoZXItdXNlciI+PHBhdGggZD0iTTIwIDIxdi0yYTQgNCAwIDAgMC00LTRINGE0IDQgMCAwIDAtNCA0djIiPjxjaXJjbGUgY3g9IjEyIiBjeT0iNyIgcj0iNCI+PC9jaXJjbGU+PC9zdmc+" alt="User">
+                    <div>
+                        <div>Библиотекарь</div>
+                        <div style="font-size: 13px; color: var(--gray);">Администратор</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Карточки с краткой сводкой -->
+            <div class="dashboard-cards">
+                <div class="card">
+                    <i class="fas fa-book"></i>
+                    <h3>Всего книг</h3>
+                    <p id="total-books">0</p>
+                </div>
+                <div class="card">
+                    <i class="fas fa-book-open"></i>
+                    <h3>Доступно книг</h3>
+                    <p id="available-books">0</p>
+                </div>
+                <div class="card">
+                    <i class="fas fa-exchange-alt"></i>
+                    <h3>Выдано книг</h3>
+                    <p id="borrowed-books">0</p>
+                </div>
+                <div class="card">
+                    <i class="fas fa-users"></i>
+                    <h3>Зарегистрировано читателей</h3>
+                    <p id="total-readers">0</p>
+                </div>
+            </div>
+            
+            <!-- Главная страница -->
+            <div class="section active" id="dashboard">
+                <h2><i class="fas fa-chart-line"></i> Краткая сводка</h2>
+                <div class="card">
+                    <h3>Недавние действия</h3>
+                    <ul class="recent-activity" id="recent-activity">
+                        <!-- Активность будет загружена из localStorage -->
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Список книг -->
+            <div class="section" id="books">
+                <h2><i class="fas fa-book"></i> Список всех книг</h2>
+                <table id="books-table">
+                    <thead>
+                        <tr>
+                            <th>Название</th>
+                            <th>Автор</th>
+                            <th>Год</th>
+                            <th>Экземпляры</th>
+                            <th>Доступно</th>
+                            <th>Статус</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Книги будут загружены из localStorage -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Список читателей -->
+            <div class="section" id="readers">
+                <h2><i class="fas fa-users"></i> Список читателей</h2>
+                <table id="readers-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>ФИО</th>
+                            <th>Телефон</th>
+                            <th>Email</th>
+                            <th>Дата регистрации</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Читатели будут загружены из localStorage -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Выдача книг -->
+            <div class="section" id="loans">
+                <h2><i class="fas fa-exchange-alt"></i> Выдача книг</h2>
+                <table id="loans-table">
+                    <thead>
+                        <tr>
+                            <th>Книга</th>
+                            <th>Читатель</th>
+                            <th>Дата выдачи</th>
+                            <th>Дата возврата</th>
+                            <th>Статус</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Выдачи будут загружены из localStorage -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Добавление книги -->
+            <div class="section" id="add-book">
+                <h2><i class="fas fa-plus-circle"></i> Добавить новую книгу</h2>
+                <form id="add-book-form">
+                    <div class="form-group">
+                        <label for="book-title">Название книги</label>
+                        <input type="text" id="book-title" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="book-author">Автор</label>
+                        <input type="text" id="book-author" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="book-year">Год издания</label>
+                        <input type="number" id="book-year" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="book-copies">Количество экземпляров</label>
+                        <input type="number" id="book-copies" class="form-control" min="1" value="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="book-description">Краткое описание</label>
+                        <textarea id="book-description" class="form-control" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Добавить книгу
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Добавление читателя -->
+            <div class="section" id="add-reader">
+                <h2><i class="fas fa-user-plus"></i> Добавить читателя</h2>
+                <form id="add-reader-form">
+                    <div class="form-group">
+                        <label for="reader-name">ФИО читателя</label>
+                        <input type="text" id="reader-name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reader-phone">Телефон</label>
+                        <input type="text" id="reader-phone" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reader-email">Email</label>
+                        <input type="email" id="reader-email" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="reader-address">Адрес</label>
+                        <textarea id="reader-address" class="form-control" rows="2"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-user-plus"></i> Добавить читателя
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно для выдачи книги -->
+    <div class="modal" id="loan-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Выдать книгу</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="loan-book">Книга</label>
+                    <input type="text" id="loan-book" class="form-control" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="loan-reader">Читатель</label>
+                    <select id="loan-reader" class="form-control" required>
+                        <option value="">Выберите читателя</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="loan-days">На сколько дней выдать</label>
+                    <input type="number" id="loan-days" class="form-control" min="1" value="14" required>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="confirm-loan">Выдать книгу</button>
+                <button class="btn btn-danger" id="cancel-loan">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно для печати библиотечной карточки -->
+    <div class="modal" id="card-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Библиотечная карточка</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body" style="display: flex; justify-content: center;">
+                <div class="library-card" id="library-card">
+                    <div class="card-logo">
+                        <div>БИБЛИОТЕКА</div>
+                        <div><i class="fas fa-book-reader"></i></div>
+                    </div>
+                    <div class="card-holder">
+                        <span>ЧИТАТЕЛЬ</span>
+                        <div id="card-reader-name"></div>
+                    </div>
+                    <div class="card-number">
+                        <span>НОМЕР ЧИТАТЕЛЬСКОГО БИЛЕТА</span>
+                        <div id="card-number"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="print-card">
+                    <i class="fas fa-print"></i> Печать
+                </button>
+                <button class="btn btn-danger" id="close-card">Закрыть</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            // Инициализация данных, если они отсутствуют
+            initializeData();
+            
+            // Загрузка данных на главную страницу
+            updateDashboard();
+            loadBooks();
+            loadReaders();
+            loadLoans();
+            loadRecentActivity();
+            
+            // Обработчики навигации
+            $('.nav-item').click(function() {
+                $('.nav-item').removeClass('active');
+                $(this).addClass('active');
+                
+                const sectionId = $(this).data('section');
+                $('.section').removeClass('active');
+                $(`#${sectionId}`).addClass('active');
+            });
+            
+            // Обработчик добавления книги
+            $('#add-book-form').submit(function(e) {
+                e.preventDefault();
+                
+                const title = $('#book-title').val();
+                const author = $('#book-author').val();
+                const year = $('#book-year').val();
+                const copies = $('#book-copies').val();
+                const description = $('#book-description').val();
+                
+                addBook(title, author, year, copies, description);
+                
+                // Очистка формы
+                $('#add-book-form')[0].reset();
+                
+                // Показываем уведомление
+                alert('Книга успешно добавлена!');
+                
+                // Обновляем данные
+                updateDashboard();
+                loadBooks();
+            });
+            
+            // Обработчик добавления читателя
+            $('#add-reader-form').submit(function(e) {
+                e.preventDefault();
+                
+                const name = $('#reader-name').val();
+                const phone = $('#reader-phone').val();
+                const email = $('#reader-email').val();
+                const address = $('#reader-address').val();
+                
+                addReader(name, phone, email, address);
+                
+                // Очистка формы
+                $('#add-reader-form')[0].reset();
+                
+                // Показываем уведомление
+                alert('Читатель успешно добавлен!');
+                
+                // Обновляем данные
+                updateDashboard();
+                loadReaders();
+            });
+            
+            // Обработчики модального окна
+            $('.close, #cancel-loan, #close-card').click(function() {
+                $('#loan-modal, #card-modal').hide();
+            });
+            
+            $('#print-card').click(function() {
+                window.print();
+            });
+            
+            // Функции для работы с данными
+            function initializeData() {
+                if (!localStorage.getItem('books')) {
+                    localStorage.setItem('books', JSON.stringify([]));
+                }
+                
+                if (!localStorage.getItem('readers')) {
+                    localStorage.setItem('readers', JSON.stringify([]));
+                }
+                
+                if (!localStorage.getItem('loans')) {
+                    localStorage.setItem('loans', JSON.stringify([]));
+                }
+                
+                if (!localStorage.getItem('activity')) {
+                    localStorage.setItem('activity', JSON.stringify([]));
+                }
+            }
+            
+            function addBook(title, author, year, copies, description) {
+                const books = JSON.parse(localStorage.getItem('books'));
+                const newBook = {
+                    id: Date.now(),
+                    title,
+                    author,
+                    year,
+                    copies: parseInt(copies),
+                    available: parseInt(copies),
+                    description,
+                    status: 'available'
+                };
+                
+                books.push(newBook);
+                localStorage.setItem('books', JSON.stringify(books));
+                
+                // Добавляем активность
+                addActivity(`Добавлена книга: "${title}" в количестве ${copies} экз.`, 'add');
+            }
+            
+            function addReader(name, phone, email, address) {
+                const readers = JSON.parse(localStorage.getItem('readers'));
+                const newReader = {
+                    id: Date.now(),
+                    name,
+                    phone,
+                    email,
+                    address,
+                    regDate: new Date().toLocaleDateString('ru-RU')
+                };
+                
+                readers.push(newReader);
+                localStorage.setItem('readers', JSON.stringify(readers));
+                
+                // Добавляем активность
+                addActivity(`Зарегистрирован новый читатель: ${name}`, 'add');
+            }
+            
+            function addActivity(message, type) {
+                const activities = JSON.parse(localStorage.getItem('activity'));
+                activities.unshift({
+                    message,
+                    type,
+                    timestamp: new Date().toLocaleString('ru-RU')
+                });
+                
+                // Ограничиваем количество записей до 10
+                if (activities.length > 10) {
+                    activities.pop();
+                }
+                
+                localStorage.setItem('activity', JSON.stringify(activities));
+                loadRecentActivity();
+            }
+            
+            function updateDashboard() {
+                const books = JSON.parse(localStorage.getItem('books'));
+                const readers = JSON.parse(localStorage.getItem('readers'));
+                
+                const totalBooks = books.reduce((sum, book) => sum + book.copies, 0);
+                const availableBooks = books.reduce((sum, book) => sum + book.available, 0);
+                const borrowedBooks = totalBooks - availableBooks;
+                const totalReaders = readers.length;
+                
+                $('#total-books').text(totalBooks);
+                $('#available-books').text(availableBooks);
+                $('#borrowed-books').text(borrowedBooks);
+                $('#total-readers').text(totalReaders);
+            }
+            
+            function loadBooks() {
+                const books = JSON.parse(localStorage.getItem('books'));
+                const tbody = $('#books-table tbody');
+                tbody.empty();
+                
+                books.forEach(book => {
+                    const statusClass = book.available > 0 ? 'status-available' : 'status-borrowed';
+                    const statusText = book.available > 0 ? 'Доступна' : 'Выдана';
+                    
+                    const row = `
+                        <tr>
+                            <td>${book.title}</td>
+                            <td>${book.author}</td>
+                            <td>${book.year}</td>
+                            <td>${book.copies}</td>
+                            <td>${book.available}</td>
+                            <td class="${statusClass}">${statusText}</td>
+                            <td>
+                                ${book.available > 0 ? 
+                                    `<button class="btn btn-primary btn-sm loan-btn" data-id="${book.id}" data-title="${book.title}">
+                                        <i class="fas fa-exchange-alt"></i> Выдать
+                                    </button>` : 
+                                    `<button class="btn btn-danger btn-sm return-btn" data-id="${book.id}">
+                                        <i class="fas fa-undo"></i> Вернуть
+                                    </button>`
+                                }
+                            </td>
+                        </tr>
+                    `;
+                    
+                    tbody.append(row);
+                });
+                
+                // Обработчики для кнопок выдачи и возврата
+                $('.loan-btn').click(function() {
+                    const bookId = $(this).data('id');
+                    const bookTitle = $(this).data('title');
+                    
+                    $('#loan-book').val(bookTitle);
+                    $('#loan-reader').val('');
+                    $('#confirm-loan').data('id', bookId);
+                    
+                    // Заполняем список читателей
+                    $('#loan-reader').html('<option value="">Выберите читателя</option>');
+                    const readers = JSON.parse(localStorage.getItem('readers'));
+                    readers.forEach(reader => {
+                        $('#loan-reader').append(`<option value="${reader.id}">${reader.name}</option>`);
+                    });
+                    
+                    $('#loan-modal').show();
+                });
+                
+                $('.return-btn').click(function() {
+                    const bookId = $(this).data('id');
+                    returnBook(bookId);
+                });
+                
+                // Обработчик подтверждения выдачи
+                $('#confirm-loan').click(function() {
+                    const bookId = $(this).data('id');
+                    const readerId = $('#loan-reader').val();
+                    const days = $('#loan-days').val();
+                    
+                    if (!readerId) {
+                        alert('Пожалуйста, выберите читателя');
+                        return;
+                    }
+                    
+                    loanBook(bookId, readerId, days);
+                    $('#loan-modal').hide();
+                });
+            }
+            
+            function loadReaders() {
+                const readers = JSON.parse(localStorage.getItem('readers'));
+                const tbody = $('#readers-table tbody');
+                tbody.empty();
+                
+                readers.forEach(reader => {
+                    const row = `
+                        <tr>
+                            <td>${reader.id}</td>
+                            <td>${reader.name}</td>
+                            <td>${reader.phone}</td>
+                            <td>${reader.email || '-'}</td>
+                            <td>${reader.regDate}</td>
+                            <td>
+                                <button class="btn btn-primary btn-sm print-card-btn" data-id="${reader.id}" data-name="${reader.name}">
+                                    <i class="fas fa-print"></i> Карточка
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                    
+                    tbody.append(row);
+                });
+                
+                // Обработчик для печати библиотечной карточки
+                $('.print-card-btn').click(function() {
+                    const readerId = $(this).data('id');
+                    const readerName = $(this).data('name');
+                    
+                    $('#card-reader-name').text(readerName);
+                    $('#card-number').text(readerId);
+                    
+                    $('#card-modal').show();
+                });
+            }
+            
+            function loanBook(bookId, readerId, days) {
+                // Обновляем статус книги
+                const books = JSON.parse(localStorage.getItem('books'));
+                const bookIndex = books.findIndex(book => book.id == bookId);
+                
+                if (bookIndex !== -1 && books[bookIndex].available > 0) {
+                    books[bookIndex].available--;
+                    if (books[bookIndex].available === 0) {
+                        books[bookIndex].status = 'borrowed';
+                    }
+                    localStorage.setItem('books', JSON.stringify(books));
+                    
+                    // Получаем информацию о читателе
+                    const readers = JSON.parse(localStorage.getItem('readers'));
+                    const reader = readers.find(r => r.id == readerId);
+                    
+                    // Добавляем запись о выдаче
+                    const loans = JSON.parse(localStorage.getItem('loans'));
+                    const loanDate = new Date();
+                    const returnDate = new Date(loanDate);
+                    returnDate.setDate(returnDate.getDate() + parseInt(days));
+                    
+                    loans.push({
+                        id: Date.now(),
+                        bookId,
+                        bookTitle: books[bookIndex].title,
+                        readerId,
+                        readerName: reader.name,
+                        loanDate: loanDate.toLocaleDateString('ru-RU'),
+                        returnDate: '',
+                        dueDate: returnDate.toLocaleDateString('ru-RU'),
+                        status: 'active'
+                    });
+                    localStorage.setItem('loans', JSON.stringify(loans));
+                    
+                    // Добавляем активность
+                    addActivity(`Книга "${books[bookIndex].title}" выдана читателю: ${reader.name}`, 'loan');
+                    
+                    // Обновляем данные
+                    updateDashboard();
+                    loadBooks();
+                    loadLoans();
+                }
+            }
+            
+            function returnBook(bookId) {
+                // Обновляем статус книги
+                const books = JSON.parse(localStorage.getItem('books'));
+                const bookIndex = books.findIndex(book => book.id == bookId);
+                
+                if (bookIndex !== -1) {
+                    books[bookIndex].available++;
+                    books[bookIndex].status = 'available';
+                    localStorage.setItem('books', JSON.stringify(books));
+                    
+                    // Обновляем запись о выдаче
+                    const loans = JSON.parse(localStorage.getItem('loans'));
+                    const loanIndex = loans.findIndex(loan => loan.bookId == bookId && loan.status === 'active');
+                    
+                    if (loanIndex !== -1) {
+                        loans[loanIndex].returnDate = new Date().toLocaleDateString('ru-RU');
+                        loans[loanIndex].status = 'returned';
+                        localStorage.setItem('loans', JSON.stringify(loans));
+                        
+                        // Добавляем активность
+                        addActivity(`Книга "${books[bookIndex].title}" возвращена в библиотеку`, 'return');
+                        
+                        // Обновляем данные
+                        updateDashboard();
+                        loadBooks();
+                        loadLoans();
+                    }
+                }
+            }
+            
+            function loadLoans() {
+                const loans = JSON.parse(localStorage.getItem('loans'));
+                const tbody = $('#loans-table tbody');
+                tbody.empty();
+                
+                // Показываем только активные выдачи
+                const activeLoans = loans.filter(loan => loan.status === 'active');
+                
+                activeLoans.forEach(loan => {
+                    const row = `
+                        <tr>
+                            <td>${loan.bookTitle}</td>
+                            <td>${loan.readerName}</td>
+                            <td>${loan.loanDate}</td>
+                            <td>${loan.returnDate || 'Не возвращена'}</td>
+                            <td><span class="badge badge-warning">Активна</span></td>
+                            <td>
+                                <button class="btn btn-danger btn-sm return-loan-btn" data-id="${loan.bookId}">
+                                    <i class="fas fa-undo"></i> Вернуть
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                    
+                    tbody.append(row);
+                });
+                
+                // Обработчик для кнопки возврата
+                $('.return-loan-btn').click(function() {
+                    const bookId = $(this).data('id');
+                    returnBook(bookId);
+                });
+            }
+            
+            function loadRecentActivity() {
+                const activities = JSON.parse(localStorage.getItem('activity'));
+                const list = $('#recent-activity');
+                list.empty();
+                
+                activities.forEach(activity => {
+                    let iconClass = '';
+                    if (activity.type === 'add') {
+                        iconClass = 'activity-add';
+                    } else if (activity.type === 'loan') {
+                        iconClass = 'activity-loan';
+                    } else if (activity.type === 'return') {
+                        iconClass = 'activity-return';
+                    }
+                    
+                    list.append(`
+                        <li>
+                            <i class="fas ${activity.type === 'add' ? 'fa-plus-circle' : activity.type === 'loan' ? 'fa-exchange-alt' : 'fa-undo'} ${iconClass}"></i>
+                            <div>
+                                <div>${activity.message}</div>
+                                <span class="timestamp">${activity.timestamp}</span>
+                            </div>
+                        </li>
+                    `);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
